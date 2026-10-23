@@ -1,20 +1,18 @@
 const express = require("express");
+const path = require("path");
 const models = require("./src/modelData/models");
 
 const app = express();
-const port = 3001;
+const port = 3000;
 
-// Test: /test/info
 app.get("/test/info", (req, res) => {
   res.json(models.schemaInfo());
 });
 
-// GET /user/list - danh sách users
 app.get("/user/list", (req, res) => {
   res.json(models.userListModel());
 });
 
-// GET /user/:id - thông tin 1 user
 app.get("/user/:id", (req, res) => {
   const user = models.userModel(req.params.id);
   if (user) {
@@ -24,9 +22,18 @@ app.get("/user/:id", (req, res) => {
   }
 });
 
-// GET /photosOfUser/:id - ảnh của 1 user
 app.get("/photosOfUser/:id", (req, res) => {
   res.json(models.photoOfUserModel(req.params.id));
+});
+
+app.use(express.static(path.join(__dirname, "build")));
+
+app.use((req, res, next) => {
+  if (req.method === "GET") {
+    res.sendFile(path.join(__dirname, "build", "index.html"));
+  } else {
+    next();
+  }
 });
 
 app.listen(port, () => {
